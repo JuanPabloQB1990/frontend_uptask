@@ -8,12 +8,12 @@ const ProyectoEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate()
 
-  const { obtenerProyeto, proyecto, cargando, eliminarProyecto } = useProyectos();
+  const { obtenerProyecto, proyecto, cargando, eliminarProyecto } = useProyectos();
 
 
 
   useEffect(() => {
-    obtenerProyeto(id);
+    obtenerProyecto(id);
   }, []);
 
   if (cargando) return "Cargando...";

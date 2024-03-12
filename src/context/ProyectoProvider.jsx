@@ -8,30 +8,30 @@ const ProyectoProvider = ({ children }) => {
   const [proyecto, setProyecto] = useState({});
   const [alerta, setAlerta] = useState({});
   const [cargando, setCargando] = useState(false);
+  const [modalFormularioTarea, setModalFormularioTarea] = useState(false);
+  const [modalEliminarTarea, setModalEliminarTarea] = useState(false);
+  const [tarea, setTarea] = useState({});
 
-  useEffect(() => {
-    const obtenerProyectos = async () => {
-      try {
-        const token = localStorage.getItem("token");
+  const obtenerProyectos = async () => {
+    console.log("obteniendo proyectos");
+    try {
+      const token = localStorage.getItem("token");
 
-        if (!token) return;
+      if (!token) return;
 
-        const config = {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        };
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
 
-        const { data } = await clienteAxios("/proyectos", config);
-        setProyectos(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    obtenerProyectos();
-  }, []);
+      const { data } = await clienteAxios("/proyectos", config);
+      setProyectos(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const mostrarAlerta = (alerta) => {
     setAlerta(alerta);
@@ -42,7 +42,6 @@ const ProyectoProvider = ({ children }) => {
   };
 
   const submitProyecto = async (proyecto) => {
-
     if (proyecto.id) {
       await editarProyecto(proyecto);
     } else {
@@ -116,7 +115,7 @@ const ProyectoProvider = ({ children }) => {
     }
   };
 
-  const obtenerProyeto = async (id) => {
+  const obtenerProyecto = async (id) => {
     setCargando(true);
 
     const token = localStorage.getItem("token");
@@ -140,8 +139,7 @@ const ProyectoProvider = ({ children }) => {
     }
   };
 
-  const eliminarProyecto = async(id) => {
-    
+  const eliminarProyecto = async (id) => {
     const token = localStorage.getItem("token");
 
     if (!token) return;
@@ -154,25 +152,166 @@ const ProyectoProvider = ({ children }) => {
     };
 
     try {
-        const { data } = await clienteAxios.delete(`/proyectos/${id}`, config);
-        
-        const proyectosActualizados = proyectos.filter(
-          (proyectoState) => proyectoState._id!== id
-        );
+      const { data } = await clienteAxios.delete(`/proyectos/${id}`, config);
 
-        setProyectos(proyectosActualizados)
+      const proyectosActualizados = proyectos.filter(
+        (proyectoState) => proyectoState._id !== id
+      );
 
-        setAlerta({
-            msg: data.msg,
-            error: false,
-        });
+      setProyectos(proyectosActualizados);
 
-        setTimeout(() => {
-            setAlerta({});
-        }, 3000);
-      } catch (error) {
-        console.log(error);
-      } 
+      setAlerta({
+        msg: data.msg,
+        error: false,
+      });
+
+      setTimeout(() => {
+        setAlerta({});
+      }, 3000);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleModalTarea = () => {
+    setModalFormularioTarea(!modalFormularioTarea);
+    setTarea({});
+  };
+
+  const submitTarea = async (tarea) => {
+    if (tarea.id) {
+      await editarTarea(tarea);
+    } else {
+      await crearTarea(tarea);
+    }
+  };
+
+  const crearTarea = async (tarea) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) return;
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const { data } = await clienteAxios.post("/tareas", tarea, config);
+      console.log(data);
+
+      // agregamos tarea al proyecto en el state
+      const proyectoAtualizado = { ...proyecto };
+      proyectoAtualizado.tareas = [...proyecto.tareas, data];
+      setProyecto(proyectoAtualizado);
+      setTarea();
+
+      setAlerta({
+        msg: "Tarea creada",
+        error: false,
+      });
+
+      setTimeout(() => {
+        setAlerta({});
+        setModalFormularioTarea(!modalFormularioTarea);
+      }, 2000);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const editarTarea = async (tarea) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) return;
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const { data } = await clienteAxios.put(
+        `/tareas/${tarea.id}`,
+        tarea,
+        config
+      );
+      console.log(data);
+
+      // actualizamos tarea al proyecto en el state
+      const proyectoActualizado = { ...proyecto };
+      proyectoActualizado.tareas = proyectoActualizado.tareas.map(
+        (tareaState) => (tareaState._id === data._id ? data : tareaState)
+      );
+
+      setProyecto(proyectoActualizado);
+
+      setAlerta({
+        msg: "Tarea Editada",
+        error: false,
+      });
+
+      setTimeout(() => {
+        setAlerta({});
+        setModalFormularioTarea(!modalFormularioTarea);
+      }, 2000);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleModalEditarTarea = (tarea) => {
+    setTarea(tarea);
+    setModalFormularioTarea(!modalFormularioTarea);
+  };
+
+  const handleModalEliminarTarea = (tarea) => {
+    setTarea(tarea);
+    setModalEliminarTarea(!modalEliminarTarea);
+  };
+
+  const eliminarTarea = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) return;
+
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const { data } = await clienteAxios.delete(
+        `/tareas/${tarea._id}`,
+        config
+      );
+
+      setModalEliminarTarea(!modalEliminarTarea);
+
+      // actualizamos tarea al proyecto en el state
+      const proyectoActualizado = { ...proyecto };
+      proyectoActualizado.tareas = proyectoActualizado.tareas.filter(
+        (tareaState) => tareaState._id !== tareaState._id
+      );
+      setProyecto(proyectoActualizado);
+
+      setAlerta({
+        msg: data.msg,
+        error: false,
+      });
+
+      setTimeout(() => {
+        setAlerta({});
+      }, 3000);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -182,10 +321,19 @@ const ProyectoProvider = ({ children }) => {
         mostrarAlerta,
         alerta,
         submitProyecto,
-        obtenerProyeto,
+        obtenerProyecto,
         proyecto,
         cargando,
         eliminarProyecto,
+        handleModalTarea,
+        modalFormularioTarea,
+        submitTarea,
+        handleModalEditarTarea,
+        tarea,
+        handleModalEliminarTarea,
+        modalEliminarTarea,
+        eliminarTarea,
+        obtenerProyectos,
       }}
     >
       {children}

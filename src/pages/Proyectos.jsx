@@ -1,9 +1,14 @@
+import { useEffect } from "react";
 import Proyecto from "../components/Proyecto";
 import useProyectos from "../hooks/useProyectos";
 
 const Proyectos = () => {
-  const { proyectos } = useProyectos();
+  const { obtenerProyectos, proyectos } = useProyectos();
 
+  useEffect(() => {
+    obtenerProyectos()
+  }, []);
+  console.log(proyectos);
   return (
     <div>
       <h1 className="text-4xl font-black">Proyectos</h1>
