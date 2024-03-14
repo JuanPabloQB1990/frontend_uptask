@@ -1,14 +1,19 @@
-import { useEffect } from "react";
-import Proyecto from "../components/Proyecto";
+import { Suspense, lazy, useEffect } from "react";
 import useProyectos from "../hooks/useProyectos";
+import Spinner from "../components/Spinner";
+import Alerta from "../components/Alerta";
+
+const Proyecto = lazy(() => import("../components/Proyecto"));
 
 const Proyectos = () => {
-  const { obtenerProyectos, proyectos } = useProyectos();
+  const { obtenerProyectos, proyectos, cargando } = useProyectos();
 
   useEffect(() => {
-    obtenerProyectos()
+    obtenerProyectos();
   }, []);
-  
+
+  if (cargando) return <Spinner />;
+
   return (
     <div>
       <h1 className="text-4xl font-black">Proyectos</h1>

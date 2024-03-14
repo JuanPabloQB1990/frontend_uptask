@@ -14,7 +14,7 @@ import ProyectoView from "./pages/ProyectoView";
 import ProyectoEdit from "./pages/ProyectoEdit";
 import NuevoColaborador from "./pages/NuevoColaborador";
 function App() {
-  console.log(import.meta.env.VITE_BACKEND_URL);
+  
   return (
     <AuthProvider>
       <ProyectoProvider>
@@ -35,6 +35,7 @@ function App() {
               <Route path="crear-proyecto" element={<NuevoProyecto />} />
               <Route path="proyecto/:id" element={<ProyectoView />} />
               <Route path="proyecto/editar/:id" element={<ProyectoEdit/>} />
+              
               <Route path="nuevo-colaborador/:id" element={<NuevoColaborador/>} />
             </Route>
           </Routes>

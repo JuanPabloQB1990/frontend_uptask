@@ -43,8 +43,8 @@ const NuevoColaborador = () => {
       ) : (
         colaborador?._id && (
           <div className="flex justify-center mt-10">
-            <div className="bg-white py-10 px-5 md:w-1/2 rounded-lg shadow">
-              <h2 className="text-center mb-10 text-2xl font-bold">
+            <div className="bg-white py-10 px-5 md:w-1/2 rounded-lg shadow w-full">
+              <h2 className="text-center mb-8 text-2xl font-bold">
                 Resultado:
               </h2>
               <div className="flex justify-between items-center">
@@ -53,7 +53,7 @@ const NuevoColaborador = () => {
                   onClick={() => agregarColaborador(colaborador.email)}
                   className="bg-slate-500 px-5 py-2 rounded-lg uppercase text-white font-bold text-sm"
                 >
-                  Agregar al Proyecto
+                  Agregar
                 </button>
               </div>
             </div>

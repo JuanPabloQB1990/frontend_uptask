@@ -6,9 +6,11 @@ const Proyecto = ({ proyecto }) => {
   
   const { _id, nombre, cliente, creador } = proyecto;
   const { auth } = useAuth()
+
+
   
   return (
-    <div className="border-b p-5 rounded-lg flex justify-between">
+    <div className="border-b p-5 rounded-lg flex flex-col md:flex-row justify-between">
       <div className="flex items-center gap-2">
         <p className="flex-1 font-bold">
           {nombre}{" "}

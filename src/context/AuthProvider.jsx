@@ -4,77 +4,87 @@ import clienteAxios from "../config/clienteAxios";
 export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-
   const [auth, setAuth] = useState({});
   const [cargando, setCargando] = useState(true);
   const [alerta, setAlerta] = useState({});
 
-  const mostrarAlerta = alerta => {
+  const mostrarAlerta = (alerta) => {
     setAlerta(alerta);
 
     setTimeout(() => {
       setAlerta({});
     }, 5000);
-  }
-  
+  };
 
   useEffect(() => {
-    console.log("autenticando", auth);
-    const autenticarUsuario = async() => {
-      const token = localStorage.getItem('token')
-      
+    
+    const autenticarUsuario = async () => {
+      const token = localStorage.getItem("token");
+
       if (!token) {
-        setCargando(false)
-        return
+        setCargando(false);
+        return;
       }
 
       const config = {
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
-      }
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      };
 
       try {
-        const { data } = await clienteAxios('/usuarios/perfil', config)
+        const { data } = await clienteAxios("/usuarios/perfil", config);
         setAuth(data);
-        
       } catch (error) {
         console.log(error);
         setAuth({});
+        localStorage.removeItem("token");
       }
 
-      setCargando(false)
-    }
+      setCargando(false);
+    };
 
-    autenticarUsuario()
-    
+    autenticarUsuario();
   }, []);
 
-  const loginUser = async(user) => {
-    
+  const loginUser = async (user) => {
     try {
       setAlerta({});
-      
-      const { data } = await clienteAxios.post('/usuarios/login', { 
+
+      const { data } = await clienteAxios.post("/usuarios/login", {
         email: user.email,
-        password: user.password
-      })
-      
-      setAuth(data)
-      localStorage.setItem('token', data.token)
-      
+        password: user.password,
+      });
+
+      setAuth(data);
+      localStorage.setItem("token", data.token);
     } catch (error) {
-      
       setAlerta({
         msg: error.response.data.msg,
         error: true,
       });
     }
-  }
-  
+  };
 
-  return <AuthContext.Provider value={{ auth, cargando, loginUser, alerta, mostrarAlerta }}>{children}</AuthContext.Provider>;
+  const cerrarSesionAuth = () => {
+    setAuth({});
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        auth,
+        cargando,
+        loginUser,
+        alerta,
+        mostrarAlerta,
+        cerrarSesionAuth,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export default AuthProvider;

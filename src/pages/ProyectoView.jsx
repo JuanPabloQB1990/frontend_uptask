@@ -8,21 +8,65 @@ import Alerta from "../components/Alerta";
 import Colaborador from "../components/Colaborador";
 import ModalEliminarColaborador from "../components/ModalEliminarColaborador";
 import useAdmin from "../hooks/useAdmin";
+import io from "socket.io-client";
+
+let socket;
 
 const ProyectoView = () => {
   const { id } = useParams();
 
-  const { obtenerProyecto, proyecto, cargando, modalFormularioTarea, handleModalTarea, alerta } = useProyectos();
-  const admin = useAdmin()
-  
+  const {
+    obtenerProyecto,
+    proyecto,
+    cargando,
+    modalFormularioTarea,
+    handleModalTarea,
+    alerta,
+    submitSocketIoTareas,
+    eliminarSocketIoTareas,
+    actualizarSocketIoTareas,
+  } = useProyectos();
+  const admin = useAdmin();
+
   useEffect(() => {
     obtenerProyecto(id);
   }, []);
-  
-  const { msg } = alerta
+
+  useEffect(() => {
+    socket = io(import.meta.env.VITE_BACKEND_URL);
+    socket.emit("abrir proyecto", id);
+  }, []);
+
+  useEffect(() => {
+    socket.on("tarea agregada", (tareaNueva) => {
+      if (tareaNueva.proyecto === proyecto._id) {
+        submitSocketIoTareas(tareaNueva);
+      }
+    });
+
+    socket.on("tarea eliminada", (tareaEliminada) => {
+      if (tareaEliminada.proyecto === proyecto._id) {
+        eliminarSocketIoTareas(tareaEliminada);
+      }
+    });
+
+    socket.on("tarea actualizada", (tareaActualizada) => {
+      if (tareaActualizada.proyecto._id === proyecto._id) {
+        actualizarSocketIoTareas(tareaActualizada);
+      }
+    });
+
+    socket.on("nuevo estado", (nuevoEstadoTarea) => {
+      if (nuevoEstadoTarea.proyecto._id === proyecto._id) {
+        actualizarSocketIoTareas(nuevoEstadoTarea);
+      }
+    });
+  });
+
+  const { msg } = alerta;
 
   if (cargando) {
-    return "Cargando..."
+    return "Cargando...";
   }
 
   if (!proyecto?._id) return <Alerta alerta={alerta} />;
@@ -54,12 +98,11 @@ const ProyectoView = () => {
               Editar
             </Link>
           </div>
-
         )}
       </div>
       {admin && (
         <button
-        onClick={handleModalTarea}
+          onClick={handleModalTarea}
           type="button"
           className="text-sm px-5 py-3 w-full md:w-auto rounded-lg uppercase font-bold bg-sky-400 mt-5 gap-2 flex items-center justify-center text-white text-center"
         >
@@ -77,30 +120,45 @@ const ProyectoView = () => {
           </svg>
           Nueva Tarea
         </button>
-
       )}
-      {msg && modalFormularioTarea === false && <Alerta alerta={alerta}/>}
+      {msg && modalFormularioTarea === false && <Alerta alerta={alerta} />}
       <p className="font-bold text-xl mt-10">Tareas del Proyecto</p>
       <div className="bg-white shadow mt-10 rounded-lg">
-        {proyecto.tareas?.length ? proyecto.tareas.map(tarea => (<Tarea key={tarea._id} tarea={tarea}/>)) : <p className="text-center my-5 p-10">No hay tareas</p>}
+        {proyecto.tareas?.length ? (
+          proyecto.tareas.map((tarea) => (
+            <Tarea key={tarea._id} tarea={tarea} />
+          ))
+        ) : (
+          <p className="text-center my-5 p-10">No hay tareas</p>
+        )}
       </div>
-      
+
       {admin && (
         <>
           <div className="flex items-center justify-between mt-10">
             <p className="font-bold text-xl mt-10">Colaboradores</p>
-            <Link className="text-gray-400 uppercase font-bold hover:text-black" to={`/proyectos/nuevo-colaborador/${proyecto._id}`}>Añadir</Link>
+            <Link
+              className="text-gray-400 uppercase font-bold hover:text-black"
+              to={`/proyectos/nuevo-colaborador/${proyecto._id}`}
+            >
+              Añadir
+            </Link>
           </div>
           <div className="bg-white shadow mt-10 rounded-lg">
-            {proyecto.colaboradores?.length ? proyecto.colaboradores.map(colaborador => (<Colaborador key={colaborador._id} colaborador={colaborador}/>)) : <p className="text-center my-5 p-10">No hay Colaboradores</p>}
+            {proyecto.colaboradores?.length ? (
+              proyecto.colaboradores.map((colaborador) => (
+                <Colaborador key={colaborador._id} colaborador={colaborador} />
+              ))
+            ) : (
+              <p className="text-center my-5 p-10">No hay Colaboradores</p>
+            )}
           </div>
         </>
-
       )}
 
       <ModalFormularioTarea />
-      <ModalEliminarColaborador/>
-      <ModalEliminarTarea/>
+      <ModalEliminarColaborador />
+      <ModalEliminarTarea />
     </>
   );
 };
