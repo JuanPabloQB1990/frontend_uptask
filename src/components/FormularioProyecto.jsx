@@ -53,7 +53,7 @@ const FormularioProyecto = () => {
     setTimeout(() => {
       navigate("/proyectos");
       
-    }, 4000);
+    }, 2000);
   };
 
   const { msg } = alerta;

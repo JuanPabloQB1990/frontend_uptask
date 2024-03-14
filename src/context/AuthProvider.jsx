@@ -19,7 +19,7 @@ const AuthProvider = ({ children }) => {
   
 
   useEffect(() => {
-    console.log("autenticando");
+    console.log("autenticando", auth);
     const autenticarUsuario = async() => {
       const token = localStorage.getItem('token')
       
@@ -52,7 +52,7 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   const loginUser = async(user) => {
-    console.log(user);
+    
     try {
       setAlerta({});
       

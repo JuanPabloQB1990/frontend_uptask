@@ -8,7 +8,7 @@ const Proyectos = () => {
   useEffect(() => {
     obtenerProyectos()
   }, []);
-  console.log(proyectos);
+  
   return (
     <div>
       <h1 className="text-4xl font-black">Proyectos</h1>

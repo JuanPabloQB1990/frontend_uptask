@@ -24,7 +24,7 @@ const ModalFormularioTarea = () => {
   const { id } = useParams()
 
   useEffect(() => {
-    console.log(tarea);
+    
     if (tarea?._id) {
         setNombre(tarea.nombre)
         setDescripcion(tarea.descripcion)
@@ -41,8 +41,8 @@ const ModalFormularioTarea = () => {
 
   const handleSubmit = async e => {
     e.preventDefault();
-
-    if ([nombre, descripcion, prioridad, fechaEntrega].includes(" ")) {
+    
+    if ([nombre, descripcion, prioridad, fechaEntrega].includes("")) {
       mostrarAlerta({
         msg: "los campos son obligatorios",
         error: true,
