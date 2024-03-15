@@ -25,7 +25,7 @@ const ProyectoEdit = () => {
       setTimeout(() => {
         navigate("/proyectos")
         
-      }, 4000);
+      }, 2000);
     }
   }
   
